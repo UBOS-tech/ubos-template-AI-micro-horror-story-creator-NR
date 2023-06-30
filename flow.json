@@ -1,1 +1,151 @@
-[]
+[
+    {
+        "id": "f032d67a542746cc",
+        "type": "tab",
+        "label": "Micro horror story creator",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "179b41e4b7f142d4",
+        "type": "http in",
+        "z": "f032d67a542746cc",
+        "name": "",
+        "url": "/createMicroHorror",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 150,
+        "y": 60,
+        "wires": [
+            [
+                "e48800d4b352cec6"
+            ]
+        ]
+    },
+    {
+        "id": "e48800d4b352cec6",
+        "type": "function",
+        "z": "f032d67a542746cc",
+        "name": "OpenAI API properties",
+        "func": "\n//const api_key = global.get('process_env').OPENAI_API\nconst api_key = msg.payload.key;\nconst content = msg.payload.text;\n\n// OpenAI API properties\nconst settings = {\n    model: \"text-davinci-003\",\n    prompt: content,\n    max_tokens: 60,\n    temperature: 0.8,\n    top_p: 1.0,\n    frequency_penalty: 0.5,\n    presence_penalty: 0.0,\n    stop: [\"###\"]\n\n};\n\nif (api_key) {\n    msg.url = 'https://api.openai.com/v1/completions';\n    msg.headers = {\n        'Content-Type': 'application/json',\n        'Authorization': `Bearer ${api_key}`,\n    };\n    msg.payload = settings;\n    msg.settings = settings;\n    return [msg, null];\n} else {\n    msg.payload = settings;\n    msg.settings = settings;\n    return [null, msg];\n}\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 400,
+        "y": 60,
+        "wires": [
+            [
+                "3e20b4d38b4b1e8a"
+            ],
+            [
+                "488b650932409e2e"
+            ]
+        ]
+    },
+    {
+        "id": "3e20b4d38b4b1e8a",
+        "type": "http request",
+        "z": "f032d67a542746cc",
+        "name": "OpenAI API",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 630,
+        "y": 60,
+        "wires": [
+            [
+                "7f3875be7420924f"
+            ]
+        ]
+    },
+    {
+        "id": "7f3875be7420924f",
+        "type": "function",
+        "z": "f032d67a542746cc",
+        "name": "Response",
+        "func": "function convertPayloadToObject(msg) {\n    let objArr = [];\n    for (const [key, value] of Object.entries(msg)) {\n        objArr.push({ key, value });\n    }\n    return objArr;\n}\nif (!msg.payload.error) {\n    msg.payload = {\n        succsess: true,\n        text: msg.payload.choices[0].text,\n        settings: convertPayloadToObject(msg.settings)\n    }\n} else {\n    msg.payload = {\n        succsess: false,\n        payload: msg.payload.error.code\n    }\n}\n\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 820,
+        "y": 60,
+        "wires": [
+            [
+                "400d017d5c2c43e6",
+                "3a261e81e62b39f6"
+            ]
+        ]
+    },
+    {
+        "id": "400d017d5c2c43e6",
+        "type": "http response",
+        "z": "f032d67a542746cc",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 1010,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "3a261e81e62b39f6",
+        "type": "debug",
+        "z": "f032d67a542746cc",
+        "name": "succses",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1000,
+        "y": 20,
+        "wires": []
+    },
+    {
+        "id": "488b650932409e2e",
+        "type": "function",
+        "z": "f032d67a542746cc",
+        "name": "Response",
+        "func": "function convertPayloadToObject(msg) {\n    let objArr = [];\n    for (const [key, value] of Object.entries(msg)) {\n        objArr.push({ key, value });\n    }\n    return objArr;\n}\n\nmsg.payload = {\n    settings: convertPayloadToObject(msg.settings)\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 630,
+        "y": 120,
+        "wires": [
+            [
+                "4a0fd0523462d460"
+            ]
+        ]
+    },
+    {
+        "id": "4a0fd0523462d460",
+        "type": "http response",
+        "z": "f032d67a542746cc",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 780,
+        "y": 120,
+        "wires": []
+    }
+]
